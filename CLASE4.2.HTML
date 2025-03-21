@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dibujo en el Canvas</title>
+    <style>
+        /* Estilos generales para la página */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto; /* Centrar el contenido */
+            padding: 20px;
+        }
+        
+        /* Estilos para el canvas */
+        #miCanvas {
+            border: 1px solid black; /* Borde para visualizar los límites del canvas */
+            background-color: #f8f8f8; /* Color de fondo claro */
+            display: block;
+            margin: 20px auto; /* Centrar el canvas */
+        }
+        
+        /* Contenedor para los botones de control */
+        .controls {
+            display: flex; /* Usar flexbox para alinear botones */
+            justify-content: center; /* Centrar horizontalmente */
+            gap: 10px; /* Espacio entre botones */
+            margin-bottom: 20px;
+        }
+        
+        /* Estilo para los botones */
+        button {
+            padding: 8px 12px;
+            background-color: #4CAF50; /* Color verde */
+            color: white;
+            border: none;
+            border-radius: 4px; /* Bordes redondeados */
+            cursor: pointer; /* Cambiar cursor al pasar por encima */
+        }
+        
+        /* Efecto hover para los botones */
+        button:hover {
+            background-color: #45a049; /* Verde más oscuro al pasar el mouse */
+        }
+        
+        /* Estilo para el título */
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        
+        /* Contenedor para los selectores de color */
+        .color-picker {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Estilo para cada opción de color */
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%; /* Forma circular */
+            cursor: pointer;
+            border: 2px solid #ccc; /* Borde gris por defecto */
+        }
+        
+        /* Estilo para el color seleccionado actualmente */
+        .color-option.selected {
+            border: 2px solid black; /* Borde negro para el seleccionado */
+        }
+    </style>
+</head>
+<body>
+    <!-- Título principal -->
+    <h2>Dibujando en el Canvas con JavaScript</h2>
+    
+    <!-- Selector de colores con 6 opciones -->
+    <div class="color-picker">
+        <!-- Cada div representa una opción de color con su atributo de datos -->
+        <div class="color-option selected" style="background-color: red;" data-color="red"></div>
+        <div class="color-option" style="background-color: blue;" data-color="blue"></div>
+        <div class="color-option" style="background-color: green;" data-color="green"></div>
+        <div class="color-option" style="background-color: yellow;" data-color="yellow"></div>
+        <div class="color-option" style="background-color: purple;" data-color="purple"></div>
+        <div class="color-option" style="background-color: black;" data-color="black"></div>
+    </div>
+    
+    <!-- Botones de control para las diferentes funciones -->
+    <div class="controls">
+        <button id="circuloBtn">Dibujar Círculo</button>
+        <button id="lineaBtn">Dibujar Línea</button>
+        <button id="cuadradoBtn">Dibujar Cuadrado</button>
+        <button id="patronBtn">Crear Patrón</button>
+        <button id="animacionBtn">Iniciar Animación</button>
+        <button id="limpiarBtn">Limpiar Canvas</button>
+    </div>
+    
+    <!-- Elemento canvas donde se realizarán los dibujos -->
+    <canvas id="miCanvas" width="600" height="400"></canvas>
+    
+    <script>
+        //---------------------------------------------
+        // INICIALIZACIÓN DEL CANVAS
+        //---------------------------------------------
+        
+        // Obtención del elemento canvas del DOM
+        const canvas = document.getElementById("miCanvas");
+        // Obtención del contexto de dibujo 2D
+        const ctx = canvas.getContext("2d");
+        
+        // Variable que almacena el color actual seleccionado
+        let currentColor = "red";
+        
+        //---------------------------------------------
+        // CONFIGURACIÓN DE COLORES
+        //---------------------------------------------
+        
+        // Seleccionar todos los elementos de opciones de color
+        const colorOptions = document.querySelectorAll('.color-option');
+        // Añadir evento click a cada opción de color
+        colorOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Quitar clase 'selected' del color anterior
+                document.querySelector('.color-option.selected').classList.remove('selected');
+                // Añadir clase 'selected' al color actual
+                this.classList.add('selected');
+                // Actualizar la variable de color con el valor del atributo data-color
+                currentColor = this.getAttribute('data-color');
+                // Actualizar los estilos de dibujo con el nuevo color
+                updateStyles();
+            });
+        });
+        
+        // Función para actualizar los estilos de dibujo (color y grosor)
+        function updateStyles() {
+            ctx.fillStyle = currentColor;    // Color de relleno
+            ctx.strokeStyle = currentColor;  // Color de contorno
+            ctx.lineWidth = 5;               // Grosor de línea
+        }
+        
+        // Inicializar los estilos por primera vez
+        updateStyles();
+        
+        //---------------------------------------------
+        // FUNCIONES DE DIBUJO
+        //---------------------------------------------
+        
+        // Función para dibujar un círculo
+        function dibujarCirculo(x, y, radio) {
+            ctx.beginPath();                     // Inicia un nuevo camino de dibujo
+            ctx.arc(x, y, radio, 0, 2 * Math.PI); // Dibuja un círculo completo (2π radianes)
+            ctx.stroke();                        // Dibuja el contorno
+            ctx.fill();                          // Rellena la forma con el color actual
+        }
+        
+        // Función para dibujar una línea
+        function dibujarLinea(x1, y1, x2, y2) {
+            ctx.beginPath();       // Inicia un nuevo camino
+            ctx.moveTo(x1, y1);    // Establece el punto inicial
+            ctx.lineTo(x2, y2);    // Establece el punto final
+            ctx.stroke();          // Dibuja la línea
+        }
+        
+        // Función para dibujar un cuadrado
+        function dibujarCuadrado(x, y, lado) {
+            ctx.beginPath();           // Inicia un nuevo camino
+            ctx.rect(x, y, lado, lado); // Dibuja un rectángulo cuadrado
+            ctx.stroke();              // Dibuja el contorno
+            ctx.fill();                // Rellena la forma
+        }
+        
+        // Función para crear un patrón de círculos con colores HSL
+        function crearPatron() {
+            // Bucles anidados para crear una rejilla de círculos
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    // Calcular un color HSL único basado en la posición
+                    ctx.fillStyle = `hsl(${(i*j*5) % 360}, 70%, 50%)`;
+                    // Dibujar un círculo pequeño en cada posición
+                    dibujarCirculo(50 + i * 50, 50 + j * 30, 10);
+                }
+            }
+            updateStyles(); // Restaurar el color seleccionado al terminar
+        }
+        
+        //---------------------------------------------
+        // ANIMACIÓN
+        //---------------------------------------------
+        
+        // Variables para controlar la animación
+        let animacionId = null;  // ID para cancelar la animación
+        let posX = 50;           // Posición inicial X
+        let velocidad = 5;       // Velocidad de movimiento
+        
+        // Función para animar un círculo moviéndose horizontalmente
+        function animarCirculo() {
+            // Limpiar el canvas para la nueva posición
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar el círculo en la nueva posición
+            dibujarCirculo(posX, canvas.height / 2, 30);
+            
+            // Actualizar la posición X
+            posX += velocidad;
+            
+            // Cambiar dirección si el círculo toca los bordes
+            if (posX > canvas.width - 30 || posX < 30) {
+                velocidad = -velocidad; // Invertir dirección
+            }
+            
+            // Programar el siguiente frame de animación
+            animacionId = requestAnimationFrame(animarCirculo);
+        }
+        
+        //---------------------------------------------
+        // FUNCIONES AUXILIARES
+        //---------------------------------------------
+        
+        // Función para limpiar completamente el canvas
+        function limpiarCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Borrar todo el contenido
+            
+            // Detener la animación si está en curso
+            if (animacionId) {
+                cancelAnimationFrame(animacionId);
+                animacionId = null;
+            }
+        }
+        
+        //---------------------------------------------
+        // CONFIGURACIÓN DE EVENTOS PARA LOS BOTONES
+        //---------------------------------------------
+        
+        // Evento para el botón de dibujar círculo
+        document.getElementById("circuloBtn").addEventListener("click", function() {
+            limpiarCanvas(); // Limpiar canvas primero
+            dibujarCirculo(canvas.width / 2, canvas.height / 2, 100); // Dibujar en el centro
+        });
+        
+        // Evento para el botón de dibujar línea
+        document.getElementById("lineaBtn").addEventListener("click", function() {
+            limpiarCanvas();
+            dibujarLinea(50, 50, canvas.width - 50, canvas.height - 50); // Línea diagonal
+        });
+        
+        // Evento para el botón de dibujar cuadrado
+        document.getElementById("cuadradoBtn").addEventListener("click", function() {
+            limpiarCanvas();
+            dibujarCuadrado(canvas.width / 2 - 75, canvas.height / 2 - 75, 150); // Cuadrado centrado
+        });
+        
+        // Evento para el botón de crear patrón
+        document.getElementById("patronBtn").addEventListener("click", function() {
+            limpiarCanvas();
+            crearPatron(); // Crear patrón de círculos
+        });
+        
+        // Evento para el botón de iniciar animación
+        document.getElementById("animacionBtn").addEventListener("click", function() {
+            // Reiniciar animación si ya está en curso
+            if (animacionId) {
+                cancelAnimationFrame(animacionId);
+            }
+            limpiarCanvas();
+            posX = 50; // Reiniciar posición
+            animacionId = requestAnimationFrame(animarCirculo); // Iniciar animación
+        });
+        
+        // Evento para el botón de limpiar canvas
+        document.getElementById("limpiarBtn").addEventListener("click", limpiarCanvas);
+    </script>
+</body>
+</html>
